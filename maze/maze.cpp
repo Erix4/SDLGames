@@ -1,41 +1,91 @@
 //maze object to worry about where walls area
 
 #include "game.h"
+#include <stack>
 
-using namespace std;
-
-Maze::Maze(SDL_Point dims, SDL_Point start, SDL_Point end){
+Maze::Maze(SDL_Point dims, SDL_Point start) : walls(dims.x, dims.y, 4){
     this->dims = dims;
     this->start = start;
-    this->end = end;
     //
-    walls = Matrix<unsigned short>(dims.x, dims.y, 4);//initialize 2d array (kinda) with all 4s
+    //Matrix<short> walls(dims.x, dims.y, 4);//initialize 2d array (kinda) with all 4s
+    //walls* = new Matrix(dims.x, dims.y, 4);
     //
-    int curX = 0, curY = 0, cellsVisited = 0;
+    std::stack<int> movePath;
+    //
+    int curX = 0, curY = 0, cellsVisited = 0, move = 0;
     //
     while(cellsVisited < dims.x * dims.y){
-        vector<int> moves = getLegalMoves(curX, curY);
+        std::vector<int> moves = getLegalMoves(curX, curY);
         //
-        int move = moves[rand() % moves.size()];
+        SDL_Point moveCoords;
+        if(moves.size() == 0){//dead end, return go back a step
+            move = movePath.top();
+            movePath.pop();
+            moveCoords = moveToCoords(move);
+            //
+            curX -= moveCoords.x;
+            curY -= moveCoords.y;
+        }else{
+            int move = moves[rand() % moves.size()];//pick a random move
+            moveCoords = moveToCoords(move);
+            //
+            movePath.push(move);
+            //
+            int prevX = curX;
+            int prevY = curY;
+            //
+            curX += moveCoords.x;
+            curY += moveCoords.y;
+            cellsVisited++;
+            //
+            if(move < 2){
+                walls.set(curX, curY, move+1);//up0->1, left1->2
+                if(walls.get(prevX, prevY) == 4){//the walls has been set
+                    walls.set(prevX, prevY, 3);//the current cell has not been visited and should be filled in to show visitation
+                    //the above only happens when the path enters from the left and move goes upward
+                }
+            }else{
+                /*
+                There are two scenario where a wall is already set:
+                    1. the previous move was up or left and entered this cell (1 or 2 only)
+                    2. the program is backtracking from a deadend and this cell has already been visited
+                If the new move is up or left, no change should be made to the current cell's wall state.
+                If the move is down or right, remove the wall in the way (2,1->0, 3->2,1), cur+m-4
+                */
+                if(walls.get(prevX, prevY) < 4){//the walls has been set
+                    walls.set(prevX, prevY, walls.get(prevX, prevY) + move - 4);
+                }
+            }
+        }
     }
+    //
+    end = moveToCoords(move);//set end as last visited cell
 }
 
-vector<int> Maze::getLegalMoves(int x, int y){
-    vector<int> moves;
+std::vector<int> Maze::getLegalMoves(int x, int y){
+    std::vector<int> moves;
     moves.reserve(4);//give the vector a capacity of 4 to avoid unnecessary reallocation
     //
     if(y > 0 && walls.get(x, y-1) == 4){
-        moves.push_back(0);
+        moves.push_back(0);//move up
     }
     if(x > 0 && walls.get(x-1, y) == 4){
-        moves.push_back(1);
+        moves.push_back(1);//move left
     }
     if(y < dims.y - 1 && walls.get(x, y+1) == 4){
-        moves.push_back(2);
+        moves.push_back(2);//move down
     }
     if(x < dims.x - 1 && walls.get(x+1, y) == 4){
-        moves.push_back(3);
+        moves.push_back(3);//move right
     }
     //
     return moves;
+}
+
+SDL_Point Maze::moveToCoords(int move){
+    if(move % 2 == 0){
+        return {move - 1, 0};
+    }else{
+        return {0, move - 2};
+    }
 }

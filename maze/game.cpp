@@ -25,7 +25,7 @@ void render(SDL_Renderer* rend, int field[CELL_ROWS][CELL_COLS]){
     SDL_RenderPresent(rend);//load backbuffer onto screen
 }
 
-void createField(int field[CELL_ROWS][CELL_COLS]){
+void createField(int field[CELL_ROWS][CELL_COLS], const Maze maze){//TODO: use maze to pick cells to fill in
     for(int i = 0; i < CELL_ROWS; i++){
         for(int j = 0; j < CELL_COLS; j++){
             if(i % 2 == 0 && j % 2 == 0){//maze corner
@@ -41,7 +41,10 @@ void createField(int field[CELL_ROWS][CELL_COLS]){
 
 void gameLoop(SDL_Renderer* rend, int screenWidth, int screenHeight){
     int field[CELL_ROWS][CELL_COLS];//create field
-    createField(field);
+    Maze maze(SDL_Point{CELL_COLS/2, CELL_ROWS/2}, SDL_Point{0, 0});
+    createField(field, maze);
+    //
+    Matrix<int> tester(4, 4);
     //
     //Hack to get window to stay up
     SDL_Event e;
