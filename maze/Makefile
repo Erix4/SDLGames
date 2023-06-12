@@ -1,5 +1,5 @@
 #OBJS specifies which files to compile as part of the project
-OBJS = main.cpp game.cpp utils.cpp game.h maze.cpp 
+OBJS = main.cpp game.cpp game.h utils.cpp maze.cpp 
 
 #CC specifies which compiler we're using
 CC = g++

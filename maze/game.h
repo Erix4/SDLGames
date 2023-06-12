@@ -2,11 +2,14 @@
 #define GAME_HEADER
 
 //Screen dimension constants
-int const SCREEN_WIDTH = 640;
-int const SCREEN_HEIGHT = 480;
+int const SCREEN_WIDTH = 750;//640;
+int const SCREEN_HEIGHT = 550;//480;
 
 //game constants
-int const CELL_SIZE = 10;
+int const CELL_SIZE = 2;
+
+int const PLAYER_SIZE = CELL_SIZE * 3 / 4;
+int const PLAYER_SPEED = 200;
 
 int const CELL_COLS = SCREEN_WIDTH / CELL_SIZE;
 int const CELL_ROWS = SCREEN_HEIGHT / CELL_SIZE;
@@ -19,19 +22,9 @@ int const CELL_NUM = CELL_COLS * CELL_ROWS;
 //game.cpp
 void gameLoop(SDL_Renderer* rend, int screenWidth, int screenHeight);
 
+
 //utils.cpp
-template <typename T> class Matrix{
-    T *list;
-    int width;
-    int height;
-    //
-    public:
-        Matrix(int width, int height);
-        Matrix(int width, int height, T fill);
-        ~Matrix();
-        T get(int x, int y);
-        void set(int x, int y, T v);
-};
+#include "utils.cpp"
 
 //maze.cpp
 //template <class T> class Matrix;
@@ -47,7 +40,7 @@ class Maze{
         SDL_Point start;
         SDL_Point end;
         //
-        Matrix<short> walls;//1d dynamic array which simulates a 3d array: x,y,2 walls (0 = right, 1 = bottom)
+        Matrix<short> walls;//1d dynamic array which simulates a 3d array: x,y,2 walls (0 = none, 1 = right, 2 = bottom, 3 = both, 4 = unset)
 };
 
 #endif

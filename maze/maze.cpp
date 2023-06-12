@@ -6,16 +6,24 @@
 Maze::Maze(SDL_Point dims, SDL_Point start) : walls(dims.x, dims.y, 4){
     this->dims = dims;
     this->start = start;
-    //
-    //Matrix<short> walls(dims.x, dims.y, 4);//initialize 2d array (kinda) with all 4s
-    //walls* = new Matrix(dims.x, dims.y, 4);
+    printf("entered constructor\n");
     //
     std::stack<int> movePath;
     //
-    int curX = 0, curY = 0, cellsVisited = 0, move = 0;
+    int curX = 0, curY = 0, cellsVisited = 1, move = 0;
     //
+    printf("beginning maze generation\n");
     while(cellsVisited < dims.x * dims.y){
-        std::vector<int> moves = getLegalMoves(curX, curY);
+        std::vector<int> moves = this->getLegalMoves(curX, curY);
+        //
+        /*printf("%d, (%d, %d)\n", cellsVisited, curX, curY);
+        for(int i = 0; i < dims.y; i++){
+            for(int j = 0; j < dims.x; j++){
+                printf("%d", walls.get(j, i));
+            }
+            printf("\n");
+        }
+        printf("moves: %d\n", moves.size());*/
         //
         SDL_Point moveCoords;
         if(moves.size() == 0){//dead end, return go back a step
@@ -23,11 +31,16 @@ Maze::Maze(SDL_Point dims, SDL_Point start) : walls(dims.x, dims.y, 4){
             movePath.pop();
             moveCoords = moveToCoords(move);
             //
+            if(walls.get(curX, curY) == 4){
+                walls.set(curX, curY, 3);
+            }
+            //
             curX -= moveCoords.x;
             curY -= moveCoords.y;
         }else{
             int move = moves[rand() % moves.size()];//pick a random move
             moveCoords = moveToCoords(move);
+            //printf("move chosen: %d, (%d, %d)\n", move, moveCoords.x, moveCoords.y);
             //
             movePath.push(move);
             //
@@ -54,9 +67,15 @@ Maze::Maze(SDL_Point dims, SDL_Point start) : walls(dims.x, dims.y, 4){
                 */
                 if(walls.get(prevX, prevY) < 4){//the walls has been set
                     walls.set(prevX, prevY, walls.get(prevX, prevY) + move - 4);
+                }else{//wall has not been set
+                    walls.set(prevX, prevY, move - 1);
                 }
             }
         }
+    }
+    //
+    if(walls.get(curX, curY) == 4){
+        walls.set(curX, curY, 3);
     }
     //
     end = moveToCoords(move);//set end as last visited cell
@@ -72,10 +91,10 @@ std::vector<int> Maze::getLegalMoves(int x, int y){
     if(x > 0 && walls.get(x-1, y) == 4){
         moves.push_back(1);//move left
     }
-    if(y < dims.y - 1 && walls.get(x, y+1) == 4){
+    if(y < this->dims.y - 1 && walls.get(x, y+1) == 4){
         moves.push_back(2);//move down
     }
-    if(x < dims.x - 1 && walls.get(x+1, y) == 4){
+    if(x < this->dims.x - 1 && walls.get(x+1, y) == 4){
         moves.push_back(3);//move right
     }
     //
@@ -83,9 +102,9 @@ std::vector<int> Maze::getLegalMoves(int x, int y){
 }
 
 SDL_Point Maze::moveToCoords(int move){
-    if(move % 2 == 0){
-        return {move - 1, 0};
+    if(move % 2 == 1){
+        return {move - 2, 0};
     }else{
-        return {0, move - 2};
+        return {0, move - 1};
     }
 }
