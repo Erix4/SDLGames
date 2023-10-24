@@ -6,10 +6,11 @@ int const SCREEN_WIDTH = 750;//640;
 int const SCREEN_HEIGHT = 550;//480;
 
 //game constants
-int const CELL_SIZE = 2;
+int const CELL_SIZE = 20;
 
 int const PLAYER_SIZE = CELL_SIZE * 3 / 4;
-int const PLAYER_SPEED = 200;
+int const PLAYER_SPEED = 300;
+int const PLAYER_ACCEL = 500;
 
 int const CELL_COLS = SCREEN_WIDTH / CELL_SIZE;
 int const CELL_ROWS = SCREEN_HEIGHT / CELL_SIZE;
